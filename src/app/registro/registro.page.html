@@ -1,0 +1,125 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Registro</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <form (submit)="handleSubmit()">
+
+    <!-- Selector de tipo de usuario al principio -->
+    <ion-item>
+      <ion-label>Registrar como</ion-label>
+      <ion-select
+        name="tipo_usuario"
+        [(ngModel)]="formData.tipo_usuario"
+        (ionChange)="handleChange($event)"
+        required
+      >
+        <ion-select-option value="cliente">Cliente</ion-select-option>
+        <ion-select-option value="profesional">Profesional</ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <!-- Datos generales (se muestran para ambos tipos de usuarios) -->
+    <ion-item>
+      <ion-label position="floating">Nombre</ion-label>
+      <ion-input
+        name="nombre"
+        type="text"
+        [(ngModel)]="formData.nombre"
+        (ngModelChange)="handleChange($event)"
+        required
+      ></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">Correo</ion-label>
+      <ion-input
+        name="correo"
+        type="email"
+        [(ngModel)]="formData.correo"
+        (ngModelChange)="handleChange($event)"
+        required
+      ></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">Contraseña</ion-label>
+      <ion-input
+        name="contraseña"
+        type="password"
+        [(ngModel)]="formData.contrasenia"
+        (ngModelChange)="handleChange($event)"
+        required
+      ></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">Repetir Contraseña</ion-label>
+      <ion-input
+        name="confirmar_contrasenia"
+        type="password"
+        [(ngModel)]="formData.confirmar_contrasenia"
+        (ngModelChange)="handleChange($event)"
+        required
+      ></ion-input>
+    </ion-item>
+
+    <!-- Mensaje de error si las contraseñas no coinciden -->
+    <div *ngIf="formData.contrasenia !== formData.confirmar_contrasenia && formData.confirmar_contrasenia">
+      <ion-label color="danger">Las contraseñas no coinciden.</ion-label>
+    </div>
+
+    <ion-item>
+      <ion-label position="floating">Teléfono</ion-label>
+      <ion-input
+        name="telefono"
+        type="tel"
+        [(ngModel)]="formData.telefono"
+        (ngModelChange)="handleChange($event)"
+        required
+      ></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">Dirección</ion-label>
+      <ion-input
+        name="direccion"
+        type="text"
+        [(ngModel)]="formData.direccion"
+        (ngModelChange)="handleChange($event)"
+        required
+      ></ion-input>
+    </ion-item>
+
+    <!-- Campos adicionales solo si se selecciona "Profesional" -->
+    <div *ngIf="formData.tipo_usuario === 'profesional'">
+      <ion-item>
+        <ion-label position="floating">Especialidad</ion-label>
+        <ion-select
+          name="especialidad"
+          [(ngModel)]="formData.especialidad"
+          (ionChange)="handleChange($event)"
+          required
+        >
+          <ion-select-option value="peluquería_personas">Peluquería de Personas</ion-select-option>
+          <ion-select-option value="peluquería_mascotas">Peluquería de Mascotas</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="floating">Experiencia</ion-label>
+        <ion-textarea
+          name="experiencia"
+          [(ngModel)]="formData.experiencia"
+          (ngModelChange)="handleChange($event)"
+          required
+        ></ion-textarea>
+      </ion-item>
+    </div>
+
+    <!-- Botón de registro, deshabilitado si las contraseñas no coinciden -->
+    <ion-button expand="full" type="submit" [disabled]="formData.contrasenia !== formData.confirmar_contrasenia">Registrar</ion-button>
+  </form>
+</ion-content>

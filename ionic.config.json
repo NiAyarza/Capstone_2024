@@ -1,0 +1,7 @@
+{
+  "name": "EstiloExpress",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
