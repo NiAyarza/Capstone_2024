@@ -1,9 +1,13 @@
 import { Injectable } from '@angular/core';
 import { createClient, SupabaseClient, AuthResponse } from '@supabase/supabase-js';
 import * as bcrypt from 'bcryptjs';
+import { BehaviorSubject } from 'rxjs';
+import { Router } from '@angular/router';
 
-const supabaseUrl = 'https://lpazgjfnfqidjyfuikve.supabase.co';
-const supabaseKey = 'YOUR_SUPABASE_KEY'; // Reemplaza con tu clave de API
+
+
+const supabaseUrl = 'https://lpazgjfnfqidjyfuikve.supabase.co'; // Reemplaza con tu URL
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxwYXpnamZuZnFpZGp5ZnVpa3ZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjc4Mjk3ODMsImV4cCI6MjA0MzQwNTc4M30.uuwrZUptN-IO4za7wHo9LuUg2DfLSe5FoO2_oLfGd30'; // Reemplaza con tu clave de API
 const supabaseClient: SupabaseClient = createClient(supabaseUrl, supabaseKey);
 
 export interface UserData {
@@ -37,6 +41,12 @@ interface ChangePasswordResponse {
   providedIn: 'root',
 })
 export class AuthService {
+
+  public isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
+  isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
+
+  constructor(private router: Router) {}
+
   // Método de registro de usuario
   async registerUser(userData: UserData) {
     const { nombre, correo, contrasenia, telefono, direccion, tipo_usuario } = userData;
@@ -61,7 +71,7 @@ export class AuthService {
       .insert([{
         nombre,
         correo,
-        contraseña: hashedPassword,
+        contrasenia: hashedPassword,
         telefono,
         direccion,
         tipo_usuario,
@@ -103,18 +113,39 @@ export class AuthService {
 
   // Método de inicio de sesión
   async signIn(email: string, password: string) {
-    const { data, error } = await supabaseClient.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      console.error('Error al iniciar sesión:', error.message);
-      return { error: error.message };
+    // 1. Buscar el usuario por correo en la base de datos
+    const { data: user, error: fetchError } = await supabaseClient
+      .from('usuarios') // Cambia 'usuarios' por el nombre de tu tabla
+      .select('*')
+      .eq('correo', email)
+      .single();
+  
+    if (fetchError || !user) {
+      console.error('Error al obtener el usuario:', fetchError?.message);
+      return { error: 'El usuario no existe o hubo un error.' };
     }
-
-    return { user: data.user }; // Asegúrate de acceder a data.user
+  
+    // 2. Comparar la contraseña ingresada con la almacenada en la base de datos
+    const passwordMatch = bcrypt.compareSync(password, user.contrasenia); // user.contrasenia es la contraseña encriptada de la base de datos
+  
+    if (!passwordMatch) {
+      return { error: 'Contraseña incorrecta' };
+    }
+  
+    // 3. Si la contraseña es correcta, guardar el estado del usuario (logueado)
+    localStorage.setItem('user', JSON.stringify(user)); // Guardar al usuario en localStorage o en un servicio de estado
+    return { user };
   }
+
+  checkAuthenticated(): boolean {
+    return !!localStorage.getItem('user'); // Retorna verdadero si hay un usuario en localStorage
+  }
+
+  logout() {
+    localStorage.removeItem('user'); // Eliminar usuario del localStorage
+    this.isAuthenticatedSubject.next(false); // Cambiar el estado de autenticación
+  }
+
 
   // Método para cambiar la contraseña
   async changePassword(newPassword: string) {

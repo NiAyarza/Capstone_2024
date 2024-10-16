@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { AuthService, UserData } from '../services/auth.service';
+import { Router } from '@angular/router'; // Importa Router para redirigir
 
 @Component({
   selector: 'app-registro',
@@ -19,7 +20,7 @@ export class RegistroPage {
     experiencia: '',
   };
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private router: Router) {} // Inyecta Router
 
   async handleSubmit() {
     // Validar que todos los campos obligatorios están presentes
@@ -56,7 +57,9 @@ export class RegistroPage {
       }
     }
 
+    // Mostrar alerta de éxito y redirigir a login
     alert('Registro exitoso');
+    this.router.navigate(['/login']); // Redirige a la página de login después del registro exitoso
   }
 
   handleChange(event: any) {

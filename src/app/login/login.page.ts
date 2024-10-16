@@ -24,7 +24,7 @@ export class LoginPage {
     if (response.error) {
       this.errorMessage = 'Error de inicio de sesión: ' + response.error;
     } else if (response.user) {
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/home']);
     }
   }
 
