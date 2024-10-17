@@ -16,6 +16,9 @@ export interface UserData {
   contrasenia: string;
   confirmar_contrasenia?: string;
   telefono: string;
+  calle: string;
+  numero: string;
+  comuna: string;
   direccion: string;
   tipo_usuario: 'cliente' | 'profesional';
   especialidad?: string;

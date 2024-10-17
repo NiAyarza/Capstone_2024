@@ -1,6 +1,9 @@
 import { Component } from '@angular/core';
 import { AuthService, UserData } from '../services/auth.service';
 import { Router } from '@angular/router'; // Importa Router para redirigir
+import { LoadingController, ModalController } from '@ionic/angular';
+import { MapModalComponent } from '../map-modal/map-modal.component';
+import { GeocodingService } from '../services/geocoding.service';
 
 @Component({
   selector: 'app-registro',
@@ -14,14 +17,45 @@ export class RegistroPage {
     contrasenia: '',
     confirmar_contrasenia: '',
     telefono: '',
+    calle: '',
+    numero: '',
+    comuna: '',
     direccion: '',
     tipo_usuario: 'cliente',
     especialidad: '',
     experiencia: '',
   };
 
-  constructor(private authService: AuthService, private router: Router) {} // Inyecta Router
+  constructor(private authService: AuthService, private router: Router, private modalCtrl: ModalController, private loadingCtrl: LoadingController) {} // Inyecta Router
 
+  async abrirMapa() {
+    // Validar si los campos de calle, número y comuna están llenos
+    if (!this.formData.calle || !this.formData.numero || !this.formData.comuna) {
+      alert('Por favor, completa los campos de Calle, Número y Comuna antes de abrir el mapa.');
+      return;
+    }
+  
+    const address = `${this.formData.calle} ${this.formData.numero}, ${this.formData.comuna}`;
+  
+    const modal = await this.modalCtrl.create({
+      component: MapModalComponent,
+    });
+  
+    // Presentar el modal
+    await modal.present();
+  
+    // Obtener la instancia del componente a través de onWillDismiss
+    const { data } = await modal.onWillDismiss();
+  
+    // Aquí puedes ejecutar la geocodificación y centrar el mapa
+    if (data) {
+      // Guardar las coordenadas seleccionadas
+      this.formData.direccion = `${data.lat}, ${data.lng}`;
+    }
+  }
+  
+  
+  
   async handleSubmit() {
     // Validar que todos los campos obligatorios están presentes
     if (!this.formData.nombre || !this.formData.correo || !this.formData.contrasenia || !this.formData.telefono || !this.formData.direccion) {

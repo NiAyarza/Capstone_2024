@@ -83,15 +83,40 @@
     </ion-item>
 
     <ion-item>
-      <ion-label position="floating">Dirección</ion-label>
+      <ion-label position="floating">Calle</ion-label>
       <ion-input
-        name="direccion"
+        name="calle"
         type="text"
-        [(ngModel)]="formData.direccion"
+        [(ngModel)]="formData.calle"
         (ngModelChange)="handleChange($event)"
         required
       ></ion-input>
     </ion-item>
+    
+    <ion-item>
+      <ion-label position="floating">Número</ion-label>
+      <ion-input
+        name="numero"
+        type="text"
+        [(ngModel)]="formData.numero"
+        (ngModelChange)="handleChange($event)"
+        required
+      ></ion-input>
+    </ion-item>
+    
+    <ion-item>
+      <ion-label position="floating">Comuna</ion-label>
+      <ion-input
+        name="comuna"
+        type="text"
+        [(ngModel)]="formData.comuna"
+        (ngModelChange)="handleChange($event)"
+        required
+      ></ion-input>
+    </ion-item>
+    
+    <!-- Botón para abrir el mapa -->
+    <ion-button (click)="abrirMapa()">Abrir Mapa</ion-button>
 
     <!-- Campos adicionales solo si se selecciona "Profesional" -->
     <div *ngIf="formData.tipo_usuario === 'profesional'">
