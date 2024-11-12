@@ -118,7 +118,7 @@ export class AuthService {
   async signIn(email: string, password: string) {
     // 1. Buscar el usuario por correo en la base de datos
     const { data: user, error: fetchError } = await supabaseClient
-      .from('usuarios') // Cambia 'usuarios' por el nombre de tu tabla
+      .from('usuarios')
       .select('*')
       .eq('correo', email)
       .single();
@@ -129,15 +129,30 @@ export class AuthService {
     }
   
     // 2. Comparar la contraseña ingresada con la almacenada en la base de datos
-    const passwordMatch = bcrypt.compareSync(password, user.contrasenia); // user.contrasenia es la contraseña encriptada de la base de datos
+    const passwordMatch = bcrypt.compareSync(password, user.contrasenia);
   
     if (!passwordMatch) {
       return { error: 'Contraseña incorrecta' };
     }
   
     // 3. Si la contraseña es correcta, guardar el estado del usuario (logueado)
-    localStorage.setItem('user', JSON.stringify(user)); // Guardar al usuario en localStorage o en un servicio de estado
+    localStorage.setItem('user', JSON.stringify(user)); // Guardar al usuario en localStorage
+  
+    // Guardar el tipo de usuario (cliente o profesional) en localStorage
+    localStorage.setItem('userType', user.tipo_usuario); 
+  
+    this.isAuthenticatedSubject.next(true); // Cambiar el estado de autenticación a verdadero
     return { user };
+  }
+
+  getUserType(): string | null {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    return user ? user.tipo_usuario : null;
+  }
+  
+  getUserId(): number | null {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    return user ? user.id : null;
   }
 
   checkAuthenticated(): boolean {

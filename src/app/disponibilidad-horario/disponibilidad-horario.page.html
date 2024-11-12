@@ -1,0 +1,80 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Disponibilidad de Horario</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <!-- Formulario de creación de disponibilidad -->
+  <form (ngSubmit)="agregarHorario()">
+    <ion-item>
+      <ion-label>Fecha</ion-label>
+      <ion-datetime display-format="YYYY-MM-DD" [(ngModel)]="fecha" name="fecha"></ion-datetime>
+    </ion-item>
+    <ion-item>
+      <ion-label>Hora Inicio</ion-label>
+      <ion-datetime display-format="HH:mm" [(ngModel)]="horaInicio" name="horaInicio" picker-format="HH:mm"></ion-datetime>
+    </ion-item>
+    <ion-item>
+      <ion-label>Hora Fin</ion-label>
+      <ion-datetime display-format="HH:mm" [(ngModel)]="horaFin" name="horaFin" picker-format="HH:mm"></ion-datetime>
+    </ion-item>
+    <ion-button expand="full" type="submit">Guardar Disponibilidad</ion-button>
+  </form>
+
+  <!-- Filtro por fecha -->
+  <ion-item>
+    <ion-label>Filtrar por Fecha</ion-label>
+    <ion-datetime display-format="YYYY-MM-DD" [(ngModel)]="filtroFecha" name="filtroFecha" (ionChange)="filtrarHorariosPorFecha()"></ion-datetime>
+  </ion-item>
+
+  <!-- Lista de horarios filtrados -->
+  <ion-list>
+    <ion-item *ngFor="let horario of horariosFiltrados">
+      <ion-label>
+        <h2>{{ horario.fecha | date: 'shortDate' }}</h2>
+        <p>{{ horario.hora_inicio }} - {{ horario.hora_fin }}</p>
+      </ion-label>
+
+      <!-- Botón de Suspender -->
+      <ion-button color="danger" fill="outline" (click)="suspenderHorario(horario.disponibilidad_id)">
+        <ion-icon slot="start" name="close-circle"></ion-icon>
+        Suspender
+      </ion-button>
+
+      <!-- Botón de Modificar -->
+      <ion-button color="primary" fill="outline" (click)="abrirFormularioModificacion(horario)">
+        <ion-icon slot="start" name="create"></ion-icon>
+        Modificar
+      </ion-button>
+    </ion-item>
+  </ion-list>
+
+  <!-- Modal de modificación de horario -->
+  <ion-modal [isOpen]="mostrarFormularioModificacion" (ionModalWillDismiss)="cerrarFormularioModificacion()">
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Modificar Horario</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="cerrarFormularioModificacion()">Cerrar</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content>
+      <ion-item>
+        <ion-label>Fecha</ion-label>
+        <ion-datetime display-format="YYYY-MM-DD" [(ngModel)]="fecha"></ion-datetime>
+      </ion-item>
+      <ion-item>
+        <ion-label>Hora Inicio</ion-label>
+        <ion-datetime display-format="HH:mm" [(ngModel)]="horaInicio"></ion-datetime>
+      </ion-item>
+      <ion-item>
+        <ion-label>Hora Fin</ion-label>
+        <ion-datetime display-format="HH:mm" [(ngModel)]="horaFin"></ion-datetime>
+      </ion-item>
+      <ion-button expand="block" color="primary" (click)="guardarModificacion()">Guardar Cambios</ion-button>
+    </ion-content>
+  </ion-modal>
+</ion-content>

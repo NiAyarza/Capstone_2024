@@ -29,6 +29,10 @@ const routes: Routes = [
     path: 'change-password',
     loadChildren: () => import('./change-password/change-password.module').then(m => m.ChangePasswordPageModule)
   },
+  {
+    path: 'disponibilidad-horario',
+    loadChildren: () => import('./disponibilidad-horario/disponibilidad-horario.module').then( m => m.DisponibilidadHorarioPageModule)
+  },
 ];
 
 @NgModule({

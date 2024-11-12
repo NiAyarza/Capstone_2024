@@ -8,9 +8,12 @@ import { Observable } from 'rxjs';
 export class GeocodingService {
   constructor(private http: HttpClient) {}
 
-  // Método para convertir una dirección en coordenadas usando Nominatim
+  // Método para convertir una dirección en coordenadas usando Nominatim con restricción de país
   geocodeAddress(address: string): Observable<any> {
-    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1`;
+    const encodedAddress = encodeURIComponent(address); // Codifica la dirección
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodedAddress}&format=json&limit=1`;
+
     return this.http.get(url);
   }
+
 }

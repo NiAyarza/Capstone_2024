@@ -1,10 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
-import * as L from 'leaflet';
+import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { GeocodingService } from '../services/geocoding.service'; // Importa el servicio de geocodificación
+import * as L from 'leaflet';
+import { GeocodingService } from '../services/geocoding.service';
 
-// Configura los iconos de Leaflet sin eliminar la propiedad _getIconUrl
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'assets/marker-icon-2x.png',
   iconUrl: 'assets/marker-icon.png',
@@ -16,45 +14,53 @@ L.Icon.Default.mergeOptions({
   templateUrl: './map-modal.component.html',
   styleUrls: ['./map-modal.component.scss'],
 })
-export class MapModalComponent implements OnInit {
+export class MapModalComponent implements OnInit, OnChanges {
+  @Input() address!: string;
   map: any;
   marker: any;
-  selectedCoords: { lat: number; lng: number } = { lat: -33.4489, lng: -70.6693 }; // Coordenadas por defecto
+  selectedCoords: { lat: number; lng: number } = { lat: -33.4489, lng: -70.6693 }; // Coordenadas por defecto (Santiago, Chile)
 
   constructor(private modalCtrl: ModalController, private geocodingService: GeocodingService) {}
 
   ngOnInit() {
-    this.loadMap();
+    if (this.address) {
+      this.geocodeAndCenterMap(this.address);
+    } else {
+      this.loadMap(this.selectedCoords); // Si no hay address, carga con coordenadas por defecto
+    }
   }
 
-  // Método para transformar la dirección en coordenadas y centrar el mapa
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['address'] && this.address) {
+      this.geocodeAndCenterMap(this.address);
+    }
+  }
+
   geocodeAndCenterMap(address: string) {
     this.geocodingService.geocodeAddress(address).subscribe((data: any) => {
       if (data.length > 0) {
-        const lat = data[0].lat;
-        const lng = data[0].lon;
-        this.selectedCoords = { lat: parseFloat(lat), lng: parseFloat(lng) };
-        this.centerMapOnCoords(this.selectedCoords);
+        const lat = parseFloat(data[0].lat);
+        const lng = parseFloat(data[0].lon);
+        this.selectedCoords = { lat, lng };
+        this.loadMap(this.selectedCoords); // Ahora carga el mapa con las coordenadas obtenidas
       } else {
         alert('No se encontraron resultados para la dirección proporcionada.');
+        this.loadMap(this.selectedCoords); // Si falla la geocodificación, carga el mapa con coordenadas por defecto
       }
     });
   }
 
-  loadMap() {
-    this.map = L.map('map').setView([this.selectedCoords.lat, this.selectedCoords.lng], 13);
+  loadMap(coords: { lat: number; lng: number }) {
+    this.map = L.map('map').setView([coords.lat, coords.lng], 13);
 
-    // Capa de OpenStreetMap
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
     }).addTo(this.map);
 
-    // Agregar un marcador arrastrable en la posición inicial
-    this.marker = L.marker([this.selectedCoords.lat, this.selectedCoords.lng], {
+    this.marker = L.marker([coords.lat, coords.lng], {
       draggable: true,
     }).addTo(this.map);
 
-    // Actualizar las coordenadas cuando el marcador se mueve
     this.marker.on('dragend', () => {
       this.selectedCoords = this.marker.getLatLng();
     });
@@ -62,19 +68,11 @@ export class MapModalComponent implements OnInit {
     this.map.invalidateSize();
   }
 
-  // Centrar el mapa en nuevas coordenadas y mover el marcador
-  centerMapOnCoords(coords: { lat: number; lng: number }) {
-    this.map.setView([coords.lat, coords.lng], 13);
-    this.marker.setLatLng([coords.lat, coords.lng]);
-  }
-
   confirmarDireccion() {
-    // Enviar las coordenadas seleccionadas al cerrar el modal
     this.modalCtrl.dismiss(this.selectedCoords);
   }
 
   cerrarModal() {
-    // Cerrar el modal sin enviar datos
     this.modalCtrl.dismiss();
   }
 }

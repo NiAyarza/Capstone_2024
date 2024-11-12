@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { AuthService, UserData } from '../services/auth.service';
 import { Router } from '@angular/router'; // Importa Router para redirigir
-import { LoadingController, ModalController } from '@ionic/angular';
+import { LoadingController, ModalController, NavController } from '@ionic/angular';
 import { MapModalComponent } from '../map-modal/map-modal.component';
 import { GeocodingService } from '../services/geocoding.service';
 
@@ -26,7 +26,7 @@ export class RegistroPage {
     experiencia: '',
   };
 
-  constructor(private authService: AuthService, private router: Router, private modalCtrl: ModalController, private loadingCtrl: LoadingController) {} // Inyecta Router
+  constructor(private navCtrl: NavController,private authService: AuthService, private router: Router, private modalCtrl: ModalController, private loadingCtrl: LoadingController) {} // Inyecta Router
 
   async abrirMapa() {
     // Validar si los campos de calle, número y comuna están llenos
@@ -35,21 +35,20 @@ export class RegistroPage {
       return;
     }
   
-    const address = `${this.formData.calle} ${this.formData.numero}, ${this.formData.comuna}`;
+    const address = `${this.formData.calle} ${this.formData.numero}, ${this.formData.comuna}, Chile`;
   
     const modal = await this.modalCtrl.create({
       component: MapModalComponent,
+      componentProps: { address }, // Pasar la dirección al componente del modal
     });
   
     // Presentar el modal
     await modal.present();
   
-    // Obtener la instancia del componente a través de onWillDismiss
     const { data } = await modal.onWillDismiss();
   
-    // Aquí puedes ejecutar la geocodificación y centrar el mapa
+    // Guardar las coordenadas seleccionadas
     if (data) {
-      // Guardar las coordenadas seleccionadas
       this.formData.direccion = `${data.lat}, ${data.lng}`;
     }
   }
@@ -99,5 +98,9 @@ export class RegistroPage {
   handleChange(event: any) {
     const { name, value } = event.target;
     this.formData[name as keyof UserData] = value;
+  }
+
+  volver() {
+    this.navCtrl.back();
   }
 }
