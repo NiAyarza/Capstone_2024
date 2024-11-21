@@ -150,9 +150,9 @@ export class AuthService {
     return user ? user.tipo_usuario : null;
   }
   
-  getUserId(): number | null {
+  getUserId(): string | null {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
-    return user ? user.id : null;
+    return user ? user.usuario_id : null;
   }
 
   checkAuthenticated(): boolean {

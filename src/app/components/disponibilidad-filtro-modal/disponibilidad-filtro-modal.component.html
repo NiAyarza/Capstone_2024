@@ -1,0 +1,20 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Seleccionar Fecha</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cerrar()">Cerrar</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-item>
+    <ion-label>Fecha</ion-label>
+    <ion-datetime
+      display-format="YYYY-MM-DD"
+      [(ngModel)]="filtroFecha"
+      presentation="date"
+    ></ion-datetime>
+  </ion-item>
+  <ion-button expand="full" (click)="aplicarFiltro()">Aplicar Filtro</ion-button>
+</ion-content>

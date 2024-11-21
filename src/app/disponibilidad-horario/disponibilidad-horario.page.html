@@ -5,43 +5,78 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
+  <!-- Botón para mostrar el formulario de creación de cita -->
+  <ion-button expand="full" color="primary" (click)="toggleCrearCitaForm()">
+    {{ mostrarFormularioCrear ? 'Ocultar Formulario' : 'Crear Hora' }}
+  </ion-button>
+
   <!-- Formulario de creación de disponibilidad -->
-  <form (ngSubmit)="agregarHorario()">
+  <form *ngIf="mostrarFormularioCrear" [formGroup]="disponibilidadForm" (ngSubmit)="agregarHorario()">
     <ion-item>
       <ion-label>Fecha</ion-label>
-      <ion-datetime display-format="YYYY-MM-DD" [(ngModel)]="fecha" name="fecha"></ion-datetime>
+      <ion-label slot="end">{{ disponibilidadForm.get('fecha')?.value | date: 'fullDate' }}</ion-label>
+      <ion-button fill="outline" slot="end" color="primary" (click)="openCalendar('crear')">
+        <ion-icon slot="icon-only" name="calendar"></ion-icon>
+      </ion-button>
     </ion-item>
     <ion-item>
       <ion-label>Hora Inicio</ion-label>
-      <ion-datetime display-format="HH:mm" [(ngModel)]="horaInicio" name="horaInicio" picker-format="HH:mm"></ion-datetime>
+      <ion-datetime
+        formControlName="horaInicio"
+        presentation="time"
+        [value]="disponibilidadForm.get('horaInicio')?.value || ''"
+        (ionChange)="disponibilidadForm.patchValue({ horaInicio: $event.detail.value })">
+      </ion-datetime>
     </ion-item>
     <ion-item>
       <ion-label>Hora Fin</ion-label>
-      <ion-datetime display-format="HH:mm" [(ngModel)]="horaFin" name="horaFin" picker-format="HH:mm"></ion-datetime>
+      <ion-datetime
+        formControlName="horaFin"
+        presentation="time"
+        [value]="disponibilidadForm.get('horaFin')?.value || ''"
+        (ionChange)="disponibilidadForm.patchValue({ horaFin: $event.detail.value })">
+      </ion-datetime>
     </ion-item>
-    <ion-button expand="full" type="submit">Guardar Disponibilidad</ion-button>
+    <ion-button expand="full" type="submit" [disabled]="disponibilidadForm.invalid">
+      Guardar Disponibilidad
+    </ion-button>
   </form>
 
-  <!-- Filtro por fecha -->
-  <ion-item>
-    <ion-label>Filtrar por Fecha</ion-label>
-    <ion-datetime display-format="YYYY-MM-DD" [(ngModel)]="filtroFecha" name="filtroFecha" (ionChange)="filtrarHorariosPorFecha()"></ion-datetime>
-  </ion-item>
+  <!-- Botones para filtrar por fecha, mostrar todas las horas y mostrar fecha actual -->
+  <ion-buttons>
+    <!-- Botón para filtrar por fecha -->
+    <ion-button  (click)="abrirSelectorFiltroFecha()">Filtrar por Fecha</ion-button>
+    
+    <!-- Botón de "Fecha Actual", siempre disponible para mostrar la fecha actual -->
+    <ion-button *ngIf="!filtroFecha" (click)="fechaActual()">Fecha Actual</ion-button>
+    
+    <!-- Botón para mostrar todas las horas -->
+    <ion-button (click)="mostrarTodasLasHoras()">Mostrar todas las horas</ion-button>
+  </ion-buttons>
 
   <!-- Lista de horarios filtrados -->
   <ion-list>
     <ion-item *ngFor="let horario of horariosFiltrados">
       <ion-label>
-        <h2>{{ horario.fecha | date: 'shortDate' }}</h2>
+        <!-- Día y Fecha en español -->
+        <h2>{{ horario.fecha | date: 'd \'de\' MMMM \'de\' yyyy' }}</h2>
+        <!-- Horas de inicio y fin -->
         <p>{{ horario.hora_inicio }} - {{ horario.hora_fin }}</p>
+        <!-- Estado del horario -->
+        <p *ngIf="horario.estado === 'activo'" class="estado-activo">Disponible</p>
+        <p *ngIf="horario.estado === 'suspendido'" class="estado-suspendido">Suspendido</p>
+        <p *ngIf="horario.estado === 'modificado'" class="estado-modificado">Modificado</p>
       </ion-label>
-
-      <!-- Botón de Suspender -->
-      <ion-button color="danger" fill="outline" (click)="suspenderHorario(horario.disponibilidad_id)">
-        <ion-icon slot="start" name="close-circle"></ion-icon>
-        Suspender
+    
+      <!-- Botón que cambia según el estado del horario -->
+      <ion-button 
+        [color]="horario.estado === 'suspendido' ? 'success' : 'danger'" 
+        fill="outline" 
+        (click)="cambiarEstado(horario)">
+        <ion-icon slot="start" [name]="horario.estado === 'suspendido' ? 'checkmark-circle' : 'close-circle'"></ion-icon>
+        {{ horario.estado === 'suspendido' ? 'Activar' : 'Suspender' }}
       </ion-button>
-
+    
       <!-- Botón de Modificar -->
       <ion-button color="primary" fill="outline" (click)="abrirFormularioModificacion(horario)">
         <ion-icon slot="start" name="create"></ion-icon>
@@ -50,31 +85,52 @@
     </ion-item>
   </ion-list>
 
-  <!-- Modal de modificación de horario -->
-  <ion-modal [isOpen]="mostrarFormularioModificacion" (ionModalWillDismiss)="cerrarFormularioModificacion()">
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>Modificar Horario</ion-title>
-        <ion-buttons slot="end">
-          <ion-button (click)="cerrarFormularioModificacion()">Cerrar</ion-button>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
-
-    <ion-content>
+  <!-- Formulario de modificación (solo visible si 'mostrarFormularioModificacion' es true) -->
+  <div *ngIf="mostrarFormularioModificacion">
+    <form [formGroup]="disponibilidadForm" (ngSubmit)="guardarModificacion()">
       <ion-item>
         <ion-label>Fecha</ion-label>
-        <ion-datetime display-format="YYYY-MM-DD" [(ngModel)]="fecha"></ion-datetime>
+        <ion-label slot="end">{{ disponibilidadForm.get('fecha')?.value | date: 'fullDate' }}</ion-label>
+        <ion-button fill="outline" slot="end" color="primary" (click)="openCalendar('modificar')">
+          <ion-icon slot="icon-only" name="calendar"></ion-icon>
+        </ion-button>
       </ion-item>
       <ion-item>
         <ion-label>Hora Inicio</ion-label>
-        <ion-datetime display-format="HH:mm" [(ngModel)]="horaInicio"></ion-datetime>
+        <ion-datetime
+          formControlName="horaInicio"
+          presentation="time"
+          [value]="disponibilidadForm.get('horaInicio')?.value || ''"
+          (ionChange)="disponibilidadForm.patchValue({ horaInicio: $event.detail.value })">
+        </ion-datetime>
       </ion-item>
       <ion-item>
         <ion-label>Hora Fin</ion-label>
-        <ion-datetime display-format="HH:mm" [(ngModel)]="horaFin"></ion-datetime>
+        <ion-datetime
+          formControlName="horaFin"
+          presentation="time"
+          [value]="disponibilidadForm.get('horaFin')?.value || ''"
+          (ionChange)="disponibilidadForm.patchValue({ horaFin: $event.detail.value })">
+        </ion-datetime>
       </ion-item>
-      <ion-button expand="block" color="primary" (click)="guardarModificacion()">Guardar Cambios</ion-button>
-    </ion-content>
+      <ion-button expand="full" type="submit" [disabled]="disponibilidadForm.invalid">
+        Guardar
+      </ion-button>
+      <ion-button expand="full" color="medium" (click)="cerrarFormularioModificacion()">Cancelar</ion-button>
+    </form>
+  </div>
+
+  <!-- Modal del calendario -->
+  <ion-modal [isOpen]="isCalendarOpen" (ionModalDidDismiss)="closeCalendar()">
+    <ng-template>
+      <ion-content>
+        <ion-datetime
+          [value]="currentFecha"
+          (ionChange)="setSelectedFecha($event)"
+          presentation="date"
+          [showDefaultButtons]="true">
+        </ion-datetime>
+      </ion-content>
+    </ng-template>
   </ion-modal>
 </ion-content>

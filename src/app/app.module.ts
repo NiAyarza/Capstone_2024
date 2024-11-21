@@ -10,11 +10,16 @@ import { HttpClientModule } from '@angular/common/http';
 
 import { MapModalComponent } from './map-modal/map-modal.component';
 
+import { DisponibilidadFiltroModalComponent } from './components/disponibilidad-filtro-modal/disponibilidad-filtro-modal.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms'; 
+
+
 @NgModule({
-  declarations: [AppComponent, MapModalComponent],
-  imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule, HttpClientModule],
+  declarations: [AppComponent, MapModalComponent,DisponibilidadFiltroModalComponent],
+  imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule, HttpClientModule, FormsModule, ReactiveFormsModule],
   providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
   bootstrap: [AppComponent],
+  exports: [DisponibilidadFiltroModalComponent,],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class AppModule {}
