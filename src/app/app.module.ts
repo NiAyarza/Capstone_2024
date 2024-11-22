@@ -12,10 +12,11 @@ import { MapModalComponent } from './map-modal/map-modal.component';
 
 import { DisponibilidadFiltroModalComponent } from './components/disponibilidad-filtro-modal/disponibilidad-filtro-modal.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'; 
+import { EspecialidadPipe } from './especialidad.pipe';
 
 
 @NgModule({
-  declarations: [AppComponent, MapModalComponent,DisponibilidadFiltroModalComponent],
+  declarations: [AppComponent, MapModalComponent,DisponibilidadFiltroModalComponent, EspecialidadPipe],
   imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule, HttpClientModule, FormsModule, ReactiveFormsModule],
   providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
   bootstrap: [AppComponent],

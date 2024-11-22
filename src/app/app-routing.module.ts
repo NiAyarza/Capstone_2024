@@ -33,6 +33,10 @@ const routes: Routes = [
     path: 'disponibilidad-horario',
     loadChildren: () => import('./disponibilidad-horario/disponibilidad-horario.module').then( m => m.DisponibilidadHorarioPageModule)
   },
+  {
+    path: 'perfil/:id',
+    loadChildren: () => import('./perfil/perfil.module').then( m => m.PerfilPageModule)
+  },
 ];
 
 @NgModule({

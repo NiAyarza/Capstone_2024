@@ -1,0 +1,12 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>perfil</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <a [routerLink]="['/perfil', profesional.usuario_id]">
+    {{ profesional.nombre | uppercase }} 
+    <span class="especialidad">{{ profesional.profesionales?.especialidad }}</span>
+  </a>  
+</ion-content>

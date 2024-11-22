@@ -1,27 +1,147 @@
-#container {
-  text-align: center;
-
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-#container strong {
-  font-size: 20px;
-  line-height: 26px;
-}
-
-#container p {
-  font-size: 16px;
-  line-height: 22px;
-
-  color: #8c8c8c;
-
+body {
+  font-family: 'Arial', sans-serif;
   margin: 0;
+  padding: 0;
+  background-color: #f5f5f5;
 }
 
-#container a {
-  text-decoration: none;
+.filters {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  background-color: #ffffff;
+  border-bottom: 1px solid #ddd;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.filter-input,
+.filter-select {
+  padding: 12px 15px; /* Ajusta el padding si es necesario */
+}
+
+.filter-item {
+  margin-bottom: 1rem;
+}
+
+.filter-label {
+  font-size: 1rem;
+  color: #333;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.filter-input,
+.filter-select {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  color: #333; /* Color del texto, ajusta si necesitas más contraste */
+  box-sizing: border-box;
+}
+
+.filter-input::placeholder,
+.filter-select::placeholder {
+  color: #888; /* Un color gris un poco más oscuro para mayor contraste */
+}
+
+.filter-input:focus,
+.filter-select:focus {
+  outline: none;
+  border-color: #007bff;
+  background-color: #ffffff;
+  color: #333;  /* Color de texto más oscuro al hacer foco */
+}
+
+
+.results {
+  padding: 1rem;
+}
+
+.no-results {
+  text-align: center;
+  color: #777;
+  font-size: 1rem;
+}
+
+.profesional-card {
+  background-color: #ffffff;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #eee;
+}
+
+.profesional-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.profesional-distancia, 
+.profesional-experiencia, 
+.profesional-direccion {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+
+@media (max-width: 768px) {
+  .filters {
+    padding: 0.75rem;
+  }
+
+  .filter-item {
+    margin-bottom: 0.75rem;
+  }
+
+  .filter-label {
+    font-size: 0.9rem;
+  }
+
+  .filter-input,
+  .filter-select {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .profesional-card {
+    padding: 0.75rem;
+  }
+
+  .profesional-title {
+    font-size: 1rem;
+  }
+
+  .profesional-distancia, 
+  .profesional-experiencia, 
+  .profesional-direccion {
+    font-size: 0.8rem;
+  }
+}
+
+/* Selección de texto */
+.filter-input::selection,
+.filter-select::selection {
+  background-color: #007bff;
+  color: #fff; /* Texto visible al seleccionar */
+}
+
+.filter-input:hover,
+.filter-select:hover {
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+  transition: box-shadow 0.2s ease-in-out;
+}
+.profesional-title {
+  font-size: 1.2rem; /* Ajusta el tamaño del nombre del profesional */
+}
+
+.especialidad {
+  font-size: 0.8rem;  /* Tamaño más pequeño para la especialidad */
+  color: gray;        /* Color más sutil para la especialidad */
+  margin-left: 5px;   /* Un pequeño espacio entre el nombre y la especialidad */
 }

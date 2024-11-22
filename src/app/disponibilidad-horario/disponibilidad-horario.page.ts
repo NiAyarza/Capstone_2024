@@ -159,28 +159,33 @@ export class DisponibilidadHorarioPage implements OnInit {
     }
   }
 
-  // Normalizar hora
   normalizarHora(horaCompleta: string): string {
     try {
-      // Verificar si la hora está en formato 'HH:mm'
-      if (!horaCompleta || horaCompleta.split(':').length !== 2) {
-        throw new RangeError('Formato de hora no válido.');
+      // Verificar si la entrada es una fecha completa (con 'T' en el medio)
+      if (horaCompleta.includes('T')) {
+        // Si la hora está en formato '2024-11-22T13:52:00', extraemos solo la hora
+        const fecha = new Date(horaCompleta);
+        if (isNaN(fecha.getTime())) {
+          throw new RangeError('Fecha no válida.');
+        }
+        // Retornar la hora en formato 'HH:mm:ss' (esto es la parte de la hora)
+        return format(fecha, 'HH:mm:ss');
+      } else {
+        // Si la hora está en formato 'HH:mm', procesamos normalmente
+        const [hora, minuto] = horaCompleta.split(':');
+  
+        // Crear un objeto Date con la hora local
+        const fecha = new Date();
+        fecha.setHours(Number(hora), Number(minuto), 0, 0); // Setea solo hora y minuto
+  
+        // Verificar si la fecha es válida
+        if (isNaN(fecha.getTime())) {
+          throw new RangeError('Fecha no válida.');
+        }
+  
+        // Retornar la hora en formato 'HH:mm:ss' en la zona horaria local
+        return format(fecha, 'HH:mm:ss'); // Esto formatea solo la hora
       }
-  
-      // Obtener la hora y los minutos
-      const [hora, minuto] = horaCompleta.split(':');
-  
-      // Crear un objeto Date con la hora local
-      const fecha = new Date();
-      fecha.setHours(Number(hora), Number(minuto), 0, 0);  // Setea la hora y minuto (segundos y milisegundos en 0)
-  
-      // Verificar si la fecha es válida
-      if (isNaN(fecha.getTime())) {
-        throw new RangeError('Fecha no válida.');
-      }
-  
-      // Devolver la hora en formato 'HH:mm:ss' en la zona horaria local
-      return format(fecha, 'HH:mm:ss');
     } catch (error) {
       console.error('Error al normalizar hora:', error);
       throw new RangeError('Formato de hora no válido.');

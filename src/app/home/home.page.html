@@ -7,14 +7,63 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
-
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
+  <div class="filters">
+    <div class="filter-item">
+      <label for="distancia" class="filter-label">Distancia (km)</label>
+      <input
+        type="number"
+        id="distancia"
+        class="filter-input"
+        [(ngModel)]="distanciaKm"
+        (change)="aplicarFiltros()"
+        min="1"
+        placeholder="Ej. 10"
+      />
+    </div>
+  
+    <div class="filter-item">
+      <label for="especialidad" class="filter-label">Especialidad</label>
+      <select
+        id="especialidad"
+        class="filter-select"
+        [(ngModel)]="especialidadSeleccionada"
+        (change)="aplicarFiltros()"
+      >
+        <option value="">Todas</option>
+        <option value="peluquería_personas">Peluquería Personas</option>
+        <option value="peluquería_mascotas">Peluquería Mascotas</option>
+      </select>
+    </div>
   </div>
+  
+  <div class="results">
+    <div *ngIf="profesionales.length === 0" class="no-results">
+      No se encontraron profesionales cercanos.
+    </div>
+  
+    <div *ngFor="let profesional of profesionales" class="profesional-card">
+      <h3 class="profesional-title">
+        <a [routerLink]="['/perfil', profesional.usuario_id]">
+          {{ profesional.nombre | uppercase }} 
+        </a>
+        <span class="especialidad">- {{ profesional.profesionales?.especialidad }}</span>
+      </h3>      
+      
+      <!-- Mostrar la dirección legible (número, calle y comuna) -->
+      <p class="profesional-direccion">
+        Dirección: {{ profesional.direccionLegible || 'Cargando dirección...' }}
+      </p>
+
+      <!-- Mostrar la experiencia del profesional -->
+      <p class="profesional-experiencia">
+        Experiencia: {{ profesional.profesionales?.experiencia || 'Cargando experiencia...' }}
+      </p>
+
+      <!-- Mostrar la distancia en km -->
+      <p class="profesional-distancia">
+        Distancia: {{ profesional.distancia | number:'1.0-2' }} km
+      </p>
+    </div>
+  </div>
+  
 </ion-content>
