@@ -73,18 +73,54 @@ export class ProfesionalService {
 
   async obtenerPerfil(usuarioId: string): Promise<any> {
     try {
+      // Consulta combinada para profesionales y usuarios
       const { data, error } = await supabaseClient
-        .from('usuarios')
-        .select('*')
+        .from('profesionales')
+        .select(`
+          profesional_id,
+          especialidad,
+          experiencia,
+          calificacion,
+          estado,
+          usuarios:usuario_id (
+            usuario_id,
+            nombre,
+            telefono,
+            direccion
+          )
+        `)
         .eq('usuario_id', usuarioId)
         .single();
-      
-      if (error) throw error;
-      return data;
+  
+      if (error) {
+        if (error.code === 'PGRST116') {
+          console.error('No se encontró al profesional con el ID:', usuarioId);
+          throw new Error('Profesional no encontrado');
+        }
+        throw error;
+      }
+  
+      // Asegurar que los datos del usuario están presentes
+      if (!data || !data.usuarios) {
+        throw new Error('No se pudo cargar la información del usuario');
+      }
+  
+      // Combina los datos para devolver un objeto plano
+      const perfil = {
+        profesional_id: data.profesional_id,
+        especialidad: data.especialidad,
+        experiencia: data.experiencia,
+        calificacion: data.calificacion,
+        estado: data.estado,
+        ...data.usuarios, // Agrega los datos de usuario como parte del objeto principal
+      };
+  
+      return perfil;
     } catch (error) {
-      console.error(error);
-      throw new Error('No se pudo obtener el perfil');
+      console.error('Error al obtener el perfil:', error);
+      throw error;
     }
   }
+  
   
 }

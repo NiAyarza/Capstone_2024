@@ -1,0 +1,41 @@
+.perfil-contenido {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .perfil-card {
+    width: 90%;
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .perfil-nombre {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+    color: var(--ion-color-primary);
+  }
+  
+  .perfil-detalle {
+    margin: 20px 0;
+    font-size: 1rem;
+  }
+  
+  ion-button {
+    margin-top: 10px;
+  }
+  
+  .perfil-cargando {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    color: gray;
+    margin-top: 30px;
+  }
+  

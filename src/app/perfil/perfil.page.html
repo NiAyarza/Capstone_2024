@@ -1,12 +1,72 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>perfil</ion-title>
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home" text="" icon="arrow-back"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Perfil del Profesional</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <a [routerLink]="['/perfil', profesional.usuario_id]">
-    {{ profesional.nombre | uppercase }} 
-    <span class="especialidad">{{ profesional.profesionales?.especialidad }}</span>
-  </a>  
-</ion-content>
+<ion-content class="ion-padding perfil-contenido">
+  <!-- Información del Profesional -->
+  <ion-card *ngIf="profesional" class="perfil-card">
+    <ion-card-header>
+      <ion-card-title class="perfil-nombre">{{ profesional.nombre | uppercase }}</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <div class="perfil-detalle">
+        <p><strong>Teléfono:</strong> {{ profesional.telefono }}</p>
+      </div>
+      <div class="perfil-detalle">
+        <p><strong>Dirección:</strong> {{ profesional.direccionLegible }}</p>
+      </div>
+      <div class="perfil-detalle">
+        <p><strong>Especialidad:</strong> {{ profesional.especialidad }}</p>
+      </div>
+      <div class="perfil-detalle">
+        <p><strong>Calificación:</strong> {{ profesional.calificacion }}</p>
+      </div>
+      <div class="perfil-detalle">
+        <p><strong>Experiencia:</strong> {{ profesional.experiencia }}</p>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Botón para abrir el calendario -->
+  <ion-button expand="full" (click)="toggleCalendario()">Agendar hora</ion-button>
+
+  <!-- Mostrar el calendario solo si 'mostrarCalendario' es verdadero -->
+  <ion-item *ngIf="mostrarCalendario">
+    <ion-label>Seleccionar fecha</ion-label>
+    <ion-datetime 
+      displayFormat="YYYY-MM-DD" 
+      [(ngModel)]="fechaSeleccionada"
+      (ionChange)="onFechaSeleccionada($event)">
+    </ion-datetime>
+  </ion-item>
+
+  <!-- Disponibilidad -->
+  <ion-content *ngIf="disponibilidadCargada">
+    <div *ngIf="disponibilidad.length > 0">
+      <div *ngFor="let dia of disponibilidad">
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>{{ dia.fecha | date: 'fullDate' }}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-list>
+              <ion-item *ngFor="let hora of dia.horas">
+                <ion-label>
+                  {{ hora }}
+                </ion-label>
+                <ion-button slot="end" (click)="agendarCita(dia.fecha + 'T' + hora)">
+                  Agendar
+                </ion-button>
+              </ion-item>
+            </ion-list>
+          </ion-card-content>
+        </ion-card>
+      </div>
+    </div>
+    <div *ngIf="disponibilidad.length === 0">
+      <p>No hay disponibilidad para este dia
