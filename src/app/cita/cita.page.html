@@ -1,0 +1,61 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Citas</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- Mostrar botón para que el profesional vea las citas con profesional_id -->
+  <ion-button *ngIf="esProfesional" (click)="verCitasPorProfesional()">
+    Ver mis citas
+  </ion-button>
+
+  <!-- Mostrar botón para que el cliente vea las citas con usuario_id -->
+  <ion-button *ngIf="!esProfesional" (click)="verCitasPorUsuario()">
+    Ver citas solicitadas
+  </ion-button>
+
+  <!-- Lista de citas -->
+  <div *ngIf="citas.length > 0">
+    <ion-list>
+      <ion-card *ngFor="let cita of citas">
+        <ion-card-header>
+          <ion-card-title>
+            Cita {{ dividirFechaHora(cita.fecha_hora).fechaFormateada }}
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <p>Hora inicio: {{ dividirFechaHora(cita.fecha_hora).hora }}</p>
+          <p>Estado: {{ cita.estado }}</p>
+          
+          <!-- Verificar si el nombre del usuario está disponible -->
+          <p>Nombre del usuario: {{ cita.usuarios?.nombre || 'Sin nombre' }}</p>
+      
+          <!-- Mostrar dirección legible procesada -->
+          <p *ngIf="cita.direccionLegible">Dirección: {{ cita.direccionLegible }}</p>
+          <p *ngIf="!cita.direccionLegible">Cargando dirección...</p>
+      
+          <!-- Botón para abrir Google Maps -->
+          <ion-button *ngIf="cita.usuarios?.direccion" (click)="abrirEnGoogleMaps(cita.usuarios.direccion)">
+            Ver en Google Maps
+          </ion-button>
+      
+          <!-- Mostrar el botón de Aceptar solo si la cita no está aceptada -->
+          <ion-button *ngIf="!cita.mostrarTelefono && cita.estado !== 'aceptada'" (click)="aceptarCita(cita)">
+            Aceptar
+          </ion-button>
+      
+          <!-- Mostrar teléfono solo si la cita está aceptada o se ha clickeado en aceptar -->
+          <p *ngIf="cita.mostrarTelefono">Teléfono: {{ cita.usuarios?.telefono || 'No disponible' }}</p>
+        </ion-card-content>
+      </ion-card>
+    </ion-list>
+  </div>
+
+  <!-- Mensaje si no hay citas disponibles -->
+  <div *ngIf="citas.length === 0">
+    <ion-text color="medium">
+      <p>No hay citas disponibles.</p>
+    </ion-text>
+  </div>
+</ion-content>

@@ -26,70 +26,70 @@ export class RegistroPage {
     experiencia: '',
   };
 
-  constructor(private navCtrl: NavController,private authService: AuthService, private router: Router, private modalCtrl: ModalController, private loadingCtrl: LoadingController) {} // Inyecta Router
+  constructor(private navCtrl: NavController, private authService: AuthService, private router: Router, private modalCtrl: ModalController, private loadingCtrl: LoadingController) {}
 
   async abrirMapa() {
-    // Validar si los campos de calle, número y comuna están llenos
     if (!this.formData.calle || !this.formData.numero || !this.formData.comuna) {
       alert('Por favor, completa los campos de Calle, Número y Comuna antes de abrir el mapa.');
       return;
     }
-  
+
     const address = `${this.formData.calle} ${this.formData.numero}, ${this.formData.comuna}, Chile`;
-  
+
     const modal = await this.modalCtrl.create({
       component: MapModalComponent,
-      componentProps: { address }, // Pasar la dirección al componente del modal
+      componentProps: { address, fromPage: 'registro' },
     });
-  
-    // Presentar el modal
+
     await modal.present();
-  
+
     const { data } = await modal.onWillDismiss();
-  
-    // Guardar las coordenadas seleccionadas
+
     if (data) {
       this.formData.direccion = `${data.lat}, ${data.lng}`;
     }
   }
-  
-  
-  
+
   async handleSubmit() {
-    // Validar que todos los campos obligatorios están presentes
+    if (this.formData.contrasenia !== this.formData.confirmar_contrasenia) {
+      alert('Las contraseñas no coinciden');
+      return;
+    }
+  
+    // Validar que todos los campos obligatorios estén presentes
     if (!this.formData.nombre || !this.formData.correo || !this.formData.contrasenia || !this.formData.telefono || !this.formData.direccion) {
       alert('Por favor, completa todos los campos obligatorios');
       return;
     }
-
+  
     // Establecer calificación a 0 si es un profesional
     if (this.formData.tipo_usuario === 'profesional') {
       this.formData.calificacion = 0; // Establece la calificación por defecto
     }
-
+  
     // Registro de usuario
     const { user, error: userError } = await this.authService.registerUser(this.formData as UserData);
     if (userError) {
       alert(userError);
       return;
     }
-
+  
     // Si el usuario es un profesional, registrar los detalles adicionales
     if (this.formData.tipo_usuario === 'profesional') {
       const { error: professionalError } = await this.authService.registerProfessional({
         usuario_id: user.usuario_id, // Usamos el ID del usuario registrado
         especialidad: this.formData.especialidad as 'peluquería_personas' | 'peluquería_mascotas',
-        calificacion: this.formData.calificacion!, // Asegúrate de que sea un número
+        calificacion: this.formData.calificacion!,
         experiencia: this.formData.experiencia!,
-        estado: 'activo', // Puedes establecer un estado por defecto si es necesario
+        estado: 'activo',
       });
-
+  
       if (professionalError) {
         alert(professionalError);
         return;
       }
     }
-
+  
     // Mostrar alerta de éxito y redirigir a login
     alert('Registro exitoso');
     this.router.navigate(['/login']); // Redirige a la página de login después del registro exitoso
@@ -103,4 +103,14 @@ export class RegistroPage {
   volver() {
     this.navCtrl.back();
   }
+
+  // Asegura que el número comience con +56 y que solo se ingresen números después
+  formatTelefono() {
+    let telefono = this.formData.telefono || '';
+    telefono = telefono.replace(/\D/g, ''); // Eliminar caracteres no numéricos
+    if (telefono.length > 9) telefono = telefono.substring(0, 9); // Limitar a 9 caracteres
+    if (!telefono.startsWith('56') && telefono.length === 9) telefono = '56' + telefono; // Agregar +56 si no está presente
+    this.formData.telefono = `+${telefono}`;
+  }
 }
+

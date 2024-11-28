@@ -39,3 +39,61 @@
     margin-top: 30px;
   }
   
+
+ /* Estilo general para los contenedores de disponibilidad */
+.disponibilidad-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center; /* Alinea el contenido verticalmente */
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+/* Estilo para la parte izquierda (fecha y hora) */
+.disponibilidad-item p {
+  margin: 0; /* Elimina márgenes de los párrafos */
+  font-size: 16px;
+  color: black; /* Color negro para el texto */
+}
+
+/* Estilo para el botón Agendar */
+.agendar-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Estilo para el botón */
+.agendar-btn button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.agendar-btn button:hover {
+  background-color: #0056b3;
+}
+
+.disponibilidad-item .horaInicioFin {
+  font-size: 14px;
+  color: black; /* Color negro para el rango de horas */
+  margin-top: 5px; /* Espacio entre la fecha y el rango de horas */
+}
+
+  .ocupado {
+    color: red;
+  }
+
+  .disabled-btn {
+    background-color: grey;
+    cursor: not-allowed;
+  }
+  

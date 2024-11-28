@@ -13,6 +13,28 @@ export class CitaService {
 
   constructor() { }
 
+
+
+  // Cambiar el estado de una cita
+  async actualizarEstadoCita(cita_id: number, estado: string) {
+    try {
+      const { data, error } = await supabaseClient
+        .from('citas')
+        .update({ estado })
+        .eq('cita_id', cita_id); // Actualizamos el estado de la cita por su ID
+
+      if (error) {
+        console.error('Error al actualizar el estado de la cita:', error);
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error al actualizar el estado de la cita:', error);
+      return null;
+    }
+  }
+
   async agendarCita(cita: any) {
     try {
       const { data, error } = await supabaseClient
@@ -30,4 +52,49 @@ export class CitaService {
       return { error };
     }
   }
+
+  async obtenerCitasPorProfesional(profesionalId: number): Promise<any> {
+    const { data, error } = await supabaseClient
+      .from('citas')
+      .select(`
+        cita_id,
+        usuario_id,
+        profesional_id,
+        fecha_hora,
+        estado,
+        usuarios (nombre, direccion, telefono)
+      `)
+      .eq('profesional_id', profesionalId);
+  
+    if (error) {
+      console.error('Error al obtener citas:', error);
+      return { data: [] }; // Devuelve un objeto con un campo 'data' vacío
+    }
+  
+    return { data };
+  }
+  
+
+  // Obtener las citas para un usuario
+async obtenerCitasPorUsuario(usuarioId: number) {
+  try {
+    const { data, error } = await supabaseClient
+      .from('citas')
+      .select('*')
+      .eq('usuario_id', usuarioId);
+
+    if (error) {
+      console.error('Error al obtener citas para el usuario:', error);
+      return [];
+    }
+
+    return data || [];  // Devuelve los datos de las citas o un arreglo vacío
+  } catch (error) {
+    console.error('Error al obtener citas para el usuario:', error);
+    return [];
+  }
+}
+
+
+  
 }

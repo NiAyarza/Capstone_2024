@@ -135,15 +135,37 @@ export class AuthService {
       return { error: 'Contraseña incorrecta' };
     }
   
+    // Guardar el ID del usuario en localStorage
+    localStorage.setItem('userId', user.usuario_id.toString());
+  
     // 3. Si la contraseña es correcta, guardar el estado del usuario (logueado)
     localStorage.setItem('user', JSON.stringify(user)); // Guardar al usuario en localStorage
   
     // Guardar el tipo de usuario (cliente o profesional) en localStorage
-    localStorage.setItem('userType', user.tipo_usuario); 
+    localStorage.setItem('userType', user.tipo_usuario);
+  
+    // Si el usuario es un profesional, obtener su profesional_id
+    if (user.tipo_usuario === 'profesional') {
+      // Buscar el profesional_id del profesional
+      const { data: profesional, error: profesionalError } = await supabaseClient
+        .from('profesionales')
+        .select('profesional_id')
+        .eq('usuario_id', user.usuario_id)
+        .single();  // Usamos single() si solo debe haber un registro para cada profesional
+  
+      if (profesionalError || !profesional) {
+        console.error('Error al obtener el profesional_id:', profesionalError?.message);
+      } else {
+        // Guardar el profesional_id en localStorage
+        localStorage.setItem('profesionalId', profesional.profesional_id.toString());
+      }
+    }
   
     this.isAuthenticatedSubject.next(true); // Cambiar el estado de autenticación a verdadero
     return { user };
   }
+  
+  
 
   getUserType(): string | null {
     const user = JSON.parse(localStorage.getItem('user') || '{}');

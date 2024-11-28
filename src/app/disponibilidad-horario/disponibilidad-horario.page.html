@@ -10,8 +10,8 @@
     {{ mostrarFormularioCrear ? 'Ocultar Formulario' : 'Crear Hora' }}
   </ion-button>
 
-  <!-- Formulario de creación de disponibilidad -->
-  <form *ngIf="mostrarFormularioCrear" [formGroup]="disponibilidadForm" (ngSubmit)="agregarHorario()">
+   <!-- Formulario de creación de disponibilidad -->
+   <form *ngIf="mostrarFormularioCrear" [formGroup]="disponibilidadForm" (ngSubmit)="agregarHorario()">
     <ion-item>
       <ion-label>Fecha</ion-label>
       <ion-label slot="end">{{ disponibilidadForm.get('fecha')?.value | date: 'fullDate' }}</ion-label>

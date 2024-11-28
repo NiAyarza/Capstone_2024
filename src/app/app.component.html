@@ -21,8 +21,9 @@
     </ion-header>
     <ion-content>
       <ion-list>
-        <ion-item *ngIf="isProfessional" routerLink="/disponibilidad-horario">Crear Cita</ion-item>
-        <ion-item routerLink="/home">Home</ion-item>
+        <ion-item *ngIf="isProfessional" routerLink="/disponibilidad-horario" (click)="closeMenu()">Crear Cita</ion-item>
+        <ion-item routerLink="/home" (click)="closeMenu()">Home</ion-item>
+        <ion-item routerLink="/cita" (click)="closeMenu()">Citas</ion-item>
         <ion-item (click)="logout()">Cerrar Sesión</ion-item>
       </ion-list>
     </ion-content>

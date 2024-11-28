@@ -12,10 +12,15 @@ export class ProfesionalService {
   constructor() {}
 
   async obtenerProfesionalesCercanos(lat: number, lng: number, distanciaKm: number, especialidad?: string) {
+    // Obtener el usuario_id del localStorage
+    const usuarioIdLogeado = localStorage.getItem('userId');
+  
+    // Consulta a la base de datos para obtener profesionales, excluyendo al usuario logueado
     const { data, error } = await supabaseClient
       .from('usuarios')
       .select('usuario_id, nombre, direccion, tipo_usuario, profesionales(especialidad, experiencia)')
-      .filter('tipo_usuario', 'eq', 'profesional');
+      .filter('tipo_usuario', 'eq', 'profesional')
+      .neq('usuario_id', usuarioIdLogeado); // Excluir al usuario logueado
     
     if (error) {
       console.error('Error al obtener profesionales:', error);
@@ -34,8 +39,6 @@ export class ProfesionalService {
       return distancia <= distanciaKm && cumpleEspecialidad;
     });
   }
-  
-  
   
   // Métodos auxiliares
   

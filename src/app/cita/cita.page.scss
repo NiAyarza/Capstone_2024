@@ -1,0 +1,74 @@
+ion-card {
+  margin: 10px 0;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: #f9f9f9;
+}
+
+ion-card-header {
+  background-color: #007bff;
+  color: #ffffff;
+  text-align: center;
+  padding: 10px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+ion-card-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+ion-card-content {
+  padding: 15px;
+  font-size: 1rem;
+  color: #333;
+}
+
+ion-card-content p {
+  margin: 10px 0;
+}
+
+p {
+  font-size: 1rem;
+  color: #333;
+  line-height: 1.6;
+}
+
+.cita-fecha {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.cita-hora {
+  font-size: 1rem;
+  color: #555;
+}
+
+.cita-estado {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #28a745; /* Verde para estado confirmado */
+}
+
+.cita-estado.pendiente {
+  color: #ffc107; /* Amarillo para estado pendiente */
+}
+
+.cita-estado.cancelada {
+  color: #dc3545; /* Rojo para estado cancelado */
+}
+
+@media (max-width: 600px) {
+  ion-card {
+    margin: 10px;
+  }
+
+  ion-card-title {
+    font-size: 1rem;
+  }
+}
+
+ion-title {
+  color: white;
+}

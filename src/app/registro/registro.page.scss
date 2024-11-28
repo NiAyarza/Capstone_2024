@@ -1,0 +1,94 @@
+/* General form styling */
+form {
+    padding: 16px;
+    background-color: #000000; /* Fondo negro */
+    border-radius: 0; /* Eliminar bordes redondeados */
+    box-shadow: none; /* Eliminar sombra */
+    margin-top: 20px;
+  }
+  
+  /* Styling for input fields */
+  ion-item {
+    margin-bottom: 0; /* Eliminar el margen entre los campos */
+    border-bottom: 1px solid #cccccc; /* Línea de separación entre los campos */
+  }
+  
+  ion-label {
+    font-weight: bold;
+    font-size: 14px;
+    color: #ffffff; /* Etiquetas en blanco para contrastar con el fondo negro */
+  }
+  
+  ion-input, ion-select, ion-textarea {
+    font-size: 16px;
+    background-color: transparent; /* Fondo transparente para los campos */
+    color: #ffffff; /* Color de texto en los campos en negro */
+    border: none; /* Eliminar borde de los campos */
+    padding: 10px 0; /* Espaciado solo en el texto */
+  }
+  
+  /* Error messages styling */
+  ion-label[color="danger"] {
+    font-size: 14px;
+    color: #e84c3d; /* Rojo para mensajes de error */
+    margin-top: 4px;
+  }
+  
+  /* Success message */
+  ion-label[color="success"] {
+    font-size: 14px;
+    color: #4CAF50; /* Verde para mensajes de éxito */
+    margin-top: 4px;
+  }
+  
+  /* Button styling */
+  ion-button {
+    margin-top: 20px;
+    --background: #3880ff; /* Color azul para el botón */
+    --color: white;
+    --border-radius: 0; /* Eliminar bordes redondeados en el botón */
+    padding: 14px;
+    font-size: 16px;
+  }
+  
+  ion-button[disabled] {
+    --background: #cccccc; /* Fondo gris cuando el botón está deshabilitado */
+    --color: #888888; /* Color gris para el texto cuando está deshabilitado */
+  }
+  
+  /* Styling for the "back" button */
+  ion-buttons {
+    margin-left: 10px;
+  }
+  
+  ion-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ffffff; /* Título en blanco para contrastar con el fondo negro */
+  }
+  
+  /* Styling for the select dropdown */
+  ion-select {
+    font-size: 16px;
+    background-color: transparent; /* Fondo transparente para el select */
+    color: #ffffff; /* Texto en negro */
+    border: none; /* Eliminar borde del select */
+  }
+  
+  /* Add some margin between each form element */
+  ion-item + ion-item {
+    margin-top: 0; /* Eliminar espacio adicional entre campos */
+  }
+  
+  /* Mobile-friendly and full-width for buttons */
+  ion-button[expand="full"] {
+    width: 100%;
+    text-align: center;
+  }
+  
+  /* Add some margin for better spacing */
+  ion-content {
+    padding: 20px;
+    background-color: #000000; /* Fondo negro en el contenido */
+  }
+  

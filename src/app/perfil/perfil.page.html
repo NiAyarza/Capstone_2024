@@ -33,7 +33,7 @@
   </ion-card>
 
   <!-- Botón para abrir el calendario -->
-  <ion-button expand="full" (click)="toggleCalendario()">Agendar hora</ion-button>
+  <ion-button expand="full" (click)="toggleCalendario()">Ver Disponibilidad</ion-button>
 
   <!-- Mostrar el calendario solo si 'mostrarCalendario' es verdadero -->
   <ion-item *ngIf="mostrarCalendario">
@@ -45,28 +45,30 @@
     </ion-datetime>
   </ion-item>
 
-  <!-- Disponibilidad -->
-  <ion-content *ngIf="disponibilidadCargada">
-    <div *ngIf="disponibilidad.length > 0">
-      <div *ngFor="let dia of disponibilidad">
-        <ion-card>
-          <ion-card-header>
-            <ion-card-title>{{ dia.fecha | date: 'fullDate' }}</ion-card-title>
-          </ion-card-header>
-          <ion-card-content>
-            <ion-list>
-              <ion-item *ngFor="let hora of dia.horas">
-                <ion-label>
-                  {{ hora }}
-                </ion-label>
-                <ion-button slot="end" (click)="agendarCita(dia.fecha + 'T' + hora)">
-                  Agendar
-                </ion-button>
-              </ion-item>
-            </ion-list>
-          </ion-card-content>
-        </ion-card>
+  <div *ngIf="disponibilidadCargada">
+    <div *ngFor="let disponibilidad of disponibilidad" class="disponibilidad-item">
+      <!-- Mostrar la fecha -->
+      <p><strong>{{ disponibilidad.fechaFormateada }}</strong></p>
+  
+      <!-- Mostrar el rango de horas (hora_inicio - hora_fin) -->
+      <p class="horaInicioFin">{{ disponibilidad.horaInicioFin }}</p>
+  
+      <!-- Botón para agendar -->
+      <div class="agendar-btn">
+        <button 
+          (click)="agendarCita(disponibilidad)" 
+          [disabled]="disponibilidad.citaPendiente"
+          [ngClass]="{'disabled-btn': disponibilidad.citaPendiente}">
+          Agendar
+        </button>
       </div>
     </div>
-    <div *ngIf="disponibilidad.length === 0">
-      <p>No hay disponibilidad para este dia
+  </div>
+  
+  
+</ion-content>
+  
+  
+  
+  
+  

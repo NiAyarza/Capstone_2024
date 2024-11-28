@@ -15,6 +15,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { EspecialidadPipe } from './especialidad.pipe';
 
 
+
 @NgModule({
   declarations: [AppComponent, MapModalComponent,DisponibilidadFiltroModalComponent, EspecialidadPipe],
   imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule, HttpClientModule, FormsModule, ReactiveFormsModule],

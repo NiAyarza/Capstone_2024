@@ -2,7 +2,10 @@
   <ion-toolbar>
     <ion-title>Seleccionar Dirección</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="confirmarDireccion()">Confirmar</ion-button>
+      <!-- Mostrar "Confirmar" solo si viene desde el registro -->
+      <ion-button *ngIf="fromPage === 'registro'" (click)="confirmarDireccion()">Confirmar</ion-button>
+      <!-- Mostrar "Cerrar" solo si viene desde el home -->
+      <ion-button *ngIf="fromPage === 'home'" (click)="cerrarModal()">Cerrar</ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>

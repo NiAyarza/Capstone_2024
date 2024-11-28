@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { DisponibilidadService } from '../services/disponibilidad.service';
 import { ModalController } from '@ionic/angular';
@@ -25,6 +25,7 @@ export class DisponibilidadHorarioPage implements OnInit {
   isCalendarOpen: boolean = false;
   currentFecha: string = new Date().toISOString().split('T')[0]; // Fecha actual
   calendarMode: 'crear' | 'modificar' = 'crear';
+  isLoading: boolean = false;
 
   // Formulario reactivo para manejar los datos de horario
   disponibilidadForm: FormGroup;
@@ -33,7 +34,8 @@ export class DisponibilidadHorarioPage implements OnInit {
     private authService: AuthService,
     private disponibilidadService: DisponibilidadService,
     private modalCtrl: ModalController,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private cdr: ChangeDetectorRef
   ) {
     // Inicializamos el formulario en el constructor
     this.disponibilidadForm = this.fb.group({
@@ -53,7 +55,6 @@ export class DisponibilidadHorarioPage implements OnInit {
     this.calendarMode = mode;
     this.isCalendarOpen = true;
   }
-
   // Cerrar el calendario
   closeCalendar() {
     this.isCalendarOpen = false;
@@ -91,7 +92,6 @@ export class DisponibilidadHorarioPage implements OnInit {
 
   // Método para agregar horario
   async agregarHorario() {
-
     console.log('Estado del formulario:', this.disponibilidadForm.valid);
     console.log('Errores del formulario:', this.disponibilidadForm.errors);
     console.log('Valores del formulario:', this.disponibilidadForm.value);
@@ -100,21 +100,18 @@ export class DisponibilidadHorarioPage implements OnInit {
       console.error('Formulario inválido');
       return;
     }
-    if (this.disponibilidadForm.invalid) {
-      console.error('Formulario inválido');
-      return;
-    }
 
     const { fecha, horaInicio, horaFin } = this.disponibilidadForm.value;
 
-    
+    // Normalizamos la fecha
+    const fechaNormalizada = this.normalizarFecha(fecha);
 
-    if (!fecha || !horaInicio || !horaFin) {
+    if (!fechaNormalizada || !horaInicio || !horaFin) {
       console.error('Algunos campos están vacíos o inválidos.');
       return;
     }
 
-    console.log('Valores a enviar:', { fecha, horaInicio, horaFin });
+    console.log('Valores a enviar:', { fecha: fechaNormalizada, horaInicio, horaFin });
 
     const usuario_id = this.authService.getUserId();
     if (!usuario_id) {
@@ -132,13 +129,13 @@ export class DisponibilidadHorarioPage implements OnInit {
       const horaInicioNormalizada = this.normalizarHora(horaInicio);
       const horaFinNormalizada = this.normalizarHora(horaFin);
 
-      console.log('Fecha:', fecha);
+      console.log('Fecha:', fechaNormalizada);
       console.log('Hora Inicio:', horaInicioNormalizada);
       console.log('Hora Fin:', horaFinNormalizada);
 
       const { data, error } = await this.disponibilidadService.agregarDisponibilidad(
         profesional_id,
-        fecha,
+        fechaNormalizada,
         horaInicioNormalizada,
         horaFinNormalizada
       );
@@ -148,6 +145,7 @@ export class DisponibilidadHorarioPage implements OnInit {
       } else {
         console.log('Disponibilidad agregada exitosamente:', data);
         this.cargarHorarios();
+        this.cdr.detectChanges(); 
         this.disponibilidadForm.reset();
       }
     } catch (err: unknown) {
@@ -157,7 +155,8 @@ export class DisponibilidadHorarioPage implements OnInit {
         console.error('Error desconocido:', err);
       }
     }
-  }
+}
+
 
   normalizarHora(horaCompleta: string): string {
     try {
@@ -238,7 +237,6 @@ export class DisponibilidadHorarioPage implements OnInit {
       console.error('Error al cambiar estado:', err);
     }
   }
-  
 
   // Método para abrir el formulario de modificación y cargar los datos actuales
   abrirFormularioModificacion(horario: any) {
@@ -312,40 +310,50 @@ export class DisponibilidadHorarioPage implements OnInit {
 
   // Establecer la fecha seleccionada
   setSelectedFecha(event: any) {
-    const selectedDate = event.detail.value.split('T')[0]; // Extraer la fecha en formato YYYY-MM-DD
-    console.log('Fecha seleccionada:', selectedDate);
-  
+    console.log('Valor recibido del calendario:', event.detail.value); // Para ver el valor completo
+    const selectedDate = event.detail.value.split('T')[0]; // Extraer solo la parte de la fecha
+    console.log('Fecha seleccionada (formato YYYY-MM-DD):', selectedDate);
+    
     if (selectedDate) {
       this.filtroFecha = selectedDate; // Asignar la fecha seleccionada al filtro
+      this.disponibilidadForm.patchValue({ fecha: selectedDate }); // Establecer la fecha en el formulario
       this.filtrarHorarios();  // Filtrar los horarios por la fecha seleccionada
     } else {
       console.error('Fecha seleccionada no válida');
     }
     this.closeCalendar(); // Cerrar el calendario
-  }
+}
+
 
   // Método para cargar los horarios de la base de datos
   async cargarHorarios() {
+    this.isLoading = true; // Mostrar spinner de carga
+  
     const usuario_id = this.authService.getUserId();
     if (!usuario_id) {
       console.error('ID de usuario no encontrado');
+      this.isLoading = false;  // Ocultar spinner si ocurre un error
       return;
     }
-
+  
     const profesional_id = await this.disponibilidadService.obtenerProfesionalId(usuario_id);
     if (!profesional_id) {
       console.error('No se pudo encontrar el profesional_id');
+      this.isLoading = false;  // Ocultar spinner si ocurre un error
       return;
     }
-
+  
     const { data, error } = await this.disponibilidadService.obtenerDisponibilidad(profesional_id);
+    this.isLoading = false;  // Ocultar spinner después de la carga
+  
     if (!error) {
       this.horarios = data ?? [];
-      this.filtrarHorarios();  // Filtrar los horarios por la fecha actual al cargar
+      this.filtrarHorarios();
     } else {
       console.error('Error al cargar disponibilidad:', error);
     }
   }
+  
 
   // Filtrar los horarios según la fecha seleccionada
   filtrarHorarios() {

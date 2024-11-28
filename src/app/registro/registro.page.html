@@ -10,7 +10,7 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <form (submit)="handleSubmit()">
+  <form (ngSubmit)="handleSubmit()" #form="ngForm">
 
     <!-- Selector de tipo de usuario al principio -->
     <ion-item>
@@ -18,12 +18,13 @@
       <ion-select
         name="tipo_usuario"
         [(ngModel)]="formData.tipo_usuario"
-        (ionChange)="handleChange($event)"
         required
+        #tipoUsuario="ngModel"
       >
         <ion-select-option value="cliente">Cliente</ion-select-option>
         <ion-select-option value="profesional">Profesional</ion-select-option>
       </ion-select>
+      <ion-text color="danger" *ngIf="tipoUsuario.invalid && tipoUsuario.touched">Este campo es obligatorio.</ion-text>
     </ion-item>
 
     <!-- Datos generales (se muestran para ambos tipos de usuarios) -->
@@ -33,9 +34,10 @@
         name="nombre"
         type="text"
         [(ngModel)]="formData.nombre"
-        (ngModelChange)="handleChange($event)"
         required
+        #nombre="ngModel"
       ></ion-input>
+      <ion-text color="danger" *ngIf="nombre.invalid && nombre.touched">Este campo es obligatorio.</ion-text>
     </ion-item>
 
     <ion-item>
@@ -44,9 +46,11 @@
         name="correo"
         type="email"
         [(ngModel)]="formData.correo"
-        (ngModelChange)="handleChange($event)"
         required
+        #correo="ngModel"
+        email
       ></ion-input>
+      <ion-text color="danger" *ngIf="correo.invalid && correo.touched">Por favor ingresa un correo válido.</ion-text>
     </ion-item>
 
     <ion-item>
@@ -55,9 +59,10 @@
         name="contraseña"
         type="password"
         [(ngModel)]="formData.contrasenia"
-        (ngModelChange)="handleChange($event)"
         required
+        #contrasenia="ngModel"
       ></ion-input>
+      <ion-text color="danger" *ngIf="contrasenia.invalid && contrasenia.touched">Este campo es obligatorio.</ion-text>
     </ion-item>
 
     <ion-item>
@@ -66,9 +71,10 @@
         name="confirmar_contrasenia"
         type="password"
         [(ngModel)]="formData.confirmar_contrasenia"
-        (ngModelChange)="handleChange($event)"
         required
+        #confirmarContrasenia="ngModel"
       ></ion-input>
+      <ion-text color="danger" *ngIf="confirmarContrasenia.invalid && confirmarContrasenia.touched">Este campo es obligatorio.</ion-text>
     </ion-item>
 
     <!-- Mensaje de error si las contraseñas no coinciden -->
@@ -82,9 +88,10 @@
         name="telefono"
         type="tel"
         [(ngModel)]="formData.telefono"
-        (ngModelChange)="handleChange($event)"
         required
+        #telefono="ngModel"
       ></ion-input>
+      <ion-text color="danger" *ngIf="telefono.invalid && telefono.touched">Este campo es obligatorio.</ion-text>
     </ion-item>
 
     <ion-item>
@@ -93,33 +100,36 @@
         name="calle"
         type="text"
         [(ngModel)]="formData.calle"
-        (ngModelChange)="handleChange($event)"
         required
+        #calle="ngModel"
       ></ion-input>
+      <ion-text color="danger" *ngIf="calle.invalid && calle.touched">Este campo es obligatorio.</ion-text>
     </ion-item>
-    
+
     <ion-item>
       <ion-label position="floating">Número</ion-label>
       <ion-input
         name="numero"
         type="text"
         [(ngModel)]="formData.numero"
-        (ngModelChange)="handleChange($event)"
         required
+        #numero="ngModel"
       ></ion-input>
+      <ion-text color="danger" *ngIf="numero.invalid && numero.touched">Este campo es obligatorio.</ion-text>
     </ion-item>
-    
+
     <ion-item>
       <ion-label position="floating">Comuna</ion-label>
       <ion-input
         name="comuna"
         type="text"
         [(ngModel)]="formData.comuna"
-        (ngModelChange)="handleChange($event)"
         required
+        #comuna="ngModel"
       ></ion-input>
+      <ion-text color="danger" *ngIf="comuna.invalid && comuna.touched">Este campo es obligatorio.</ion-text>
     </ion-item>
-    
+
     <!-- Botón para abrir el mapa -->
     <ion-button (click)="abrirMapa()">Abrir Mapa</ion-button>
 
@@ -130,12 +140,13 @@
         <ion-select
           name="especialidad"
           [(ngModel)]="formData.especialidad"
-          (ionChange)="handleChange($event)"
           required
+          #especialidad="ngModel"
         >
           <ion-select-option value="peluquería_personas">Peluquería de Personas</ion-select-option>
           <ion-select-option value="peluquería_mascotas">Peluquería de Mascotas</ion-select-option>
         </ion-select>
+        <ion-text color="danger" *ngIf="especialidad.invalid && especialidad.touched">Este campo es obligatorio.</ion-text>
       </ion-item>
 
       <ion-item>
@@ -143,13 +154,17 @@
         <ion-textarea
           name="experiencia"
           [(ngModel)]="formData.experiencia"
-          (ngModelChange)="handleChange($event)"
           required
+          #experiencia="ngModel"
         ></ion-textarea>
+        <ion-text color="danger" *ngIf="experiencia.invalid && experiencia.touched">Este campo es obligatorio.</ion-text>
       </ion-item>
     </div>
 
-    <!-- Botón de registro, deshabilitado si las contraseñas no coinciden -->
-    <ion-button expand="full" type="submit" [disabled]="formData.contrasenia !== formData.confirmar_contrasenia">Registrar</ion-button>
+    <!-- Botón de registro, deshabilitado si el formulario no es válido -->
+    <ion-button expand="full" type="submit" 
+      [disabled]="form.invalid || formData.contrasenia !== formData.confirmar_contrasenia">
+      Registrar
+    </ion-button>
   </form>
 </ion-content>

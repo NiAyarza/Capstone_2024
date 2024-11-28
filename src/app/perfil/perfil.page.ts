@@ -77,55 +77,81 @@ export class PerfilPage implements OnInit {
     }
   }
 
-  async obtenerDisponibilidad(profesional_id: number, fecha: string) {
+  async obtenerDisponibilidad(profesional_id: number, fecha: string) { 
     if (!profesional_id) {
       console.error('Profesional ID no disponible');
       return;
     }
-
+  
     try {
+      // Obtener las disponibilidades del profesional
       const { data, error } = await this.disponibilidadService.obtenerDisponibilidad(profesional_id);
       if (error) {
         console.error('Error al obtener disponibilidad:', error);
         return;
       }
-
+  
+      // Obtener las citas del profesional
+      const { data: citas, error: citasError } = await this.citasService.obtenerCitasPorProfesional(profesional_id);
+      if (citasError) {
+        console.error('Error al obtener citas:', citasError);
+        return;
+      }
+  
       // Filtrar disponibilidad por la fecha seleccionada
       const disponibilidadFiltrada = data.filter(d => d.fecha === fecha);
       if (disponibilidadFiltrada && disponibilidadFiltrada.length > 0) {
-        this.disponibilidad = this.procesarDisponibilidad(disponibilidadFiltrada);
+        // Procesar la disponibilidad y las citas
+        this.disponibilidad = this.procesarDisponibilidad(disponibilidadFiltrada, citas ?? []);
       } else {
         this.disponibilidad = []; // Si no hay disponibilidad, muestra un array vacío
       }
-
+  
       this.disponibilidadCargada = true; // Marcar como cargada
     } catch (error) {
       console.error('Error al obtener disponibilidad:', error);
     }
   }
-
-  // Función para procesar la disponibilidad y devolverla agrupada por hora
-  procesarDisponibilidad(data: any[]) {
-    let disponibilidadAgrupada: any[] = [];
-    data.forEach(item => {
-      const horaInicio = item.hora_inicio.split(':')[0] + ':' + item.hora_inicio.split(':')[1]; // Formato HH:mm
-      const horaFin = item.hora_fin.split(':')[0] + ':' + item.hora_fin.split(':')[1];
-      const fecha = item.fecha;
-
-      const diaExistente = disponibilidadAgrupada.find(d => d.fecha === fecha);
-      if (diaExistente) {
-        diaExistente.horas.push(`${horaInicio} - ${horaFin}`);
-      } else {
-        disponibilidadAgrupada.push({
-          fecha,
-          horas: [`${horaInicio} - ${horaFin}`]
-        });
-      }
+  
+  procesarDisponibilidad(disponibilidad: any[], citas: any[]) {
+    console.log('Disponibilidad cargada:', disponibilidad);
+    return disponibilidad.map((d: any) => {
+      // Array de nombres de meses en español
+      const meses = [
+        'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+        'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+      ];
+  
+      // Separar la fecha en partes (YYYY-MM-DD)
+      const [year, month, day] = d.fecha.split('-'); // '2024-11-28' => ['2024', '11', '28']
+  
+      // Convertir el mes a número (1-12) y obtener el nombre del mes
+      const mes = meses[parseInt(month, 10) - 1]; // '11' => 'noviembre'
+  
+      // Crear el formato 'día de mes' (ej. '28 de noviembre')
+      const fechaFormateada = `${parseInt(day, 10)} ${mes}`;
+  
+      // Generar el formato de hora_inicio - hora_fin
+      const horaInicio = new Date(`1970-01-01T${d.hora_inicio}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const horaFin = new Date(`1970-01-01T${d.hora_fin}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const horaInicioFin = `${horaInicio} - ${horaFin}`;
+  
+      // Verificar si ya existe una cita pendiente para esta disponibilidad
+      const citaPendiente = citas.some((cita: any) => cita.disponibilidad_id === d.disponibilidad_id && cita.estado === 'pendiente');
+  
+      return {
+        ...d,
+        fechaFormateada,   // Agregar la fecha formateada al objeto
+        horaInicioFin,     // Agregar el campo de horas formateadas
+        citaPendiente,     // Agregar la información de la cita pendiente
+      };
     });
-
-    return disponibilidadAgrupada;
   }
-
+  
+  
+  
+  
+  
   // Función para manejar la selección de fecha desde el calendario
   onFechaSeleccionada(event: any) {
     this.fechaSeleccionada = event.detail.value.split('T')[0]; // Obtener la fecha seleccionada
@@ -171,9 +197,6 @@ export class PerfilPage implements OnInit {
     }
   }
   
-  
-  
-  
   // Método para formatear la fecha a "YYYY-MM-DD"
   formatearFecha(fecha: string): string {
     const date = new Date(fecha);
@@ -218,16 +241,35 @@ export class PerfilPage implements OnInit {
     return ahora.getTime();
   }
   
-  
   private convertirTimestampAHora(timestamp: number): string {
     const fecha = new Date(timestamp);
     const horas = fecha.getHours().toString().padStart(2, '0');
     const minutos = fecha.getMinutes().toString().padStart(2, '0');
     return `${horas}:${minutos}`;
   }
-  
 
-  async agendarCita(fechaCompleta: string) {
+  // Normalizar fecha
+  normalizarFecha(fechaCompleta: string): string {
+    const fecha = parseISO(fechaCompleta);
+    return format(fecha, 'yyyy-MM-dd');
+  }
+
+  async agendarCita(disponibilidad: any) {
+    const usuarioId = localStorage.getItem('userId');
+    
+    if (!usuarioId) {
+      const errorAlert = await this.alertController.create({
+        header: 'Error',
+        message: 'No se pudo identificar al usuario conectado. Por favor, inicie sesión nuevamente.',
+        buttons: ['OK'],
+      });
+      await errorAlert.present();
+      return;
+    }
+  
+    // Construir la fecha completa (fecha + hora)
+    const fechaCompleta = `${disponibilidad.fecha}T${disponibilidad.hora_inicio}`;
+  
     const alert = await this.alertController.create({
       header: 'Confirmar Cita',
       message: `¿Estás seguro de que deseas agendar la cita para el ${fechaCompleta}?`,
@@ -240,12 +282,16 @@ export class PerfilPage implements OnInit {
           text: 'Confirmar',
           handler: async () => {
             const cita = {
-              usuario_id: this.usuarioId,
+              usuario_id: usuarioId,
               profesional_id: this.profesional.profesional_id,
-              fecha: fechaCompleta,
+              disponibilidad_id: disponibilidad.disponibilidad_id, // Asociar disponibilidad
+              fecha_hora: fechaCompleta,
               estado: 'pendiente',
               fecha_creacion: new Date().toISOString(),
             };
+  
+            console.log('Datos de la cita a agendar:', cita);
+  
             const { error } = await this.citasService.agendarCita(cita);
             if (error) {
               console.error('Error al agendar la cita:', error);
@@ -262,6 +308,7 @@ export class PerfilPage implements OnInit {
                 buttons: ['OK'],
               });
               await successAlert.present();
+              this.cargarDisponibilidad(); // Recargar disponibilidad después de agendar
             }
           },
         },
@@ -272,7 +319,7 @@ export class PerfilPage implements OnInit {
   }
   
   
-
+  
   // Método para convertir la dirección en coordenadas (lat, lon)
   parseDireccion(direccion: string): [number, number] {
     const [lat, lon] = direccion.split(',').map(Number);

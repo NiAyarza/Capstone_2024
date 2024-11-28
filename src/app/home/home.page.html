@@ -35,6 +35,11 @@
       </select>
     </div>
   </div>
+
+  <!-- Botón para abrir el mapa -->
+  <ion-button (click)="abrirMapa()" expand="full" color="primary">
+    Ver Ubicación en Mapa
+  </ion-button>
   
   <div class="results">
     <div *ngIf="profesionales.length === 0" class="no-results">
@@ -61,8 +66,9 @@
 
       <!-- Mostrar la distancia en km -->
       <p class="profesional-distancia">
-        Distancia: {{ profesional.distancia | number:'1.0-2' }} km
+        Distancia: {{ profesional.distancia ? (profesional.distancia | number:'1.0-2') : 'N/A' }} km
       </p>
+      
     </div>
   </div>
   
